@@ -1,10 +1,8 @@
 
 import React from 'react';
 import { client } from '@/lib/sanity';
-import { PortableText, PortableTextBlock } from '@portabletext/react';
-import { urlFor } from '@/app/utils/urlFor';
-import CommentsSection from '../Comment-Section/page';
 import BlogPostClient from '../BlogPostClient';
+import { PortableTextBlock } from '@portabletext/react';
 
 interface Post {
   title: string;
@@ -17,21 +15,15 @@ interface Post {
 }
 
 interface BlogPostProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-const fetchPost = async (slug: string) => {
-  const query = `*[_type == 'Blog' && slug.current == $slug]{
-    title,
-    body,
-    image
-  }`;
-  const postData: Post[] = await client.fetch(query, { slug });
-  return postData[0]; 
-};
 
 const BlogPostServer = async ({ params }: BlogPostProps) => {
-  const post = await fetchPost(params.slug);
+  const { slug } = await params;  // This ensures that `slug` is extracted after the promise resolves
+
+  const query = `*[_type == 'Blog' && slug.current == $slug][0]{ title, body, image }`;
+  const post: Post | null = await client.fetch(query, { slug });
 
   if (!post) {
     return <div className="container mx-auto p-4">Blog post not found.</div>;
