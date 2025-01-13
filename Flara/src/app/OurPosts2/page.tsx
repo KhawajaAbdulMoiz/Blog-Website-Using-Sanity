@@ -23,7 +23,7 @@ export default async function Blogs2(){
   return (
     <>
     <div>
-    <h1 className={styles.main_heading}>Our Recent Post</h1>  {/* Imported From Recent-Post.module.css */}
+    <h1 className={styles.main_heading}>Our Recent Post</h1> 
     </div>
     <div className='flex mt-10 hidden md:block md:flex md:flex-row'>
    

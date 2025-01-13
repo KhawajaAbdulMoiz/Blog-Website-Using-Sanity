@@ -5,21 +5,17 @@ import Card from '@/app/OurPosts3/card';
 import imageUrlBuilder from '@sanity/image-url';
 import { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
-
 interface Iblog {
-  image: { asset?: { _ref: string } };  
+  image: { asset?: { _ref: string } };
   title: string;
   slug: { current: string };
 }
 
-
 const builder = imageUrlBuilder(client);
-
 
 export function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
-
 
 const fetchBlogs = async () => {
   const query = `*[_type == "Blog"] {
@@ -29,26 +25,28 @@ const fetchBlogs = async () => {
   }`;
 
   const blogs = await client.fetch(query);
-  return blogs;
+  return blogs || []; 
 };
 
 export default async function AllBlog() {
   const blogs: Iblog[] = await fetchBlogs();
 
+  if (!blogs || blogs.length === 0) {
+    return <div>No blogs available.</div>;
+  }
+
   return (
     <div className="container mx-auto p-4 mt-10">
       <div className="flex flex-wrap justify-center">
         {blogs.map((blog, index) => (
-   <Link href={`${blog.slug}`} key={index}>
-     <Card
-       image={blog.image?.asset ? urlFor(blog.image.asset._ref).url() : ''}
-       category="Category"
-       title={blog.title}
-       description="Blogs are important for developers to showcase their expertise."
-     />
- 
- </Link>
-
+          <Link href={`/${blog.slug}`} key={index}>
+            <Card
+              image={blog.image?.asset ? urlFor(blog.image.asset._ref).url() : ''}
+              category="Category"
+              title={blog.title}
+              description="Blogs are important for developers to showcase their expertise."
+            />
+          </Link>
         ))}
       </div>
     </div>
